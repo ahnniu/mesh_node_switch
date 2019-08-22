@@ -15,14 +15,27 @@
 #include "board.h"
 #include "onoff_cli.h"
 
+#define BUTTON_DEBOUNCE_DELAY_MS 250
+
 static u32_t oob_number;
 static struct device *gpio;
 static int is_prov_completed = 0;
+
+static u32_t last_time = 0, time = 0;
 
 static void button_pressed(struct device *dev, struct gpio_callback *cb,
 			   u32_t pins)
 {
 	struct mb_display *disp = mb_display_get();
+
+	time = k_uptime_get_32();
+
+	if(time < last_time + BUTTON_DEBOUNCE_DELAY_MS) {
+		last_time = time;
+		return;
+	}
+
+	last_time = time;
 
 	if(!is_prov_completed)
 		mb_display_print(disp, MB_DISPLAY_MODE_DEFAULT, K_MSEC(500),
@@ -107,11 +120,11 @@ void light_on(void)
 	struct mb_display *disp = mb_display_get();
 	struct mb_image arrow = 	MB_IMAGE({ 0, 0, 0, 0, 0 },
 			 { 0, 0, 0, 0, 0 },
-			 { 0, 0, 0, 0, 0 },
+			 { 0, 0, 1, 0, 0 },
 			 { 0, 0, 0, 0, 0 },
 			 { 0, 0, 0, 0, 0 });
 
-	mb_display_image(disp, MB_DISPLAY_MODE_DEFAULT, K_SECONDS(10),
+	mb_display_image(disp, MB_DISPLAY_MODE_DEFAULT, K_FOREVER,
 			 &arrow, 1);
 }
 
@@ -120,10 +133,10 @@ void light_off(void)
 	struct mb_display *disp = mb_display_get();
 	struct mb_image arrow = 	MB_IMAGE({ 0, 0, 0, 0, 0 },
 			 { 0, 0, 0, 0, 0 },
-			 { 0, 0, 1, 0, 0 },
+			 { 0, 0, 0, 0, 0 },
 			 { 0, 0, 0, 0, 0 },
 			 { 0, 0, 0, 0, 0 });
 
-	mb_display_image(disp, MB_DISPLAY_MODE_DEFAULT, K_SECONDS(10),
+	mb_display_image(disp, MB_DISPLAY_MODE_DEFAULT, K_FOREVER,
 			 &arrow, 1);
 }
