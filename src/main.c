@@ -21,7 +21,7 @@
 u16_t primary_addr = BT_MESH_ADDR_UNASSIGNED;
 
 static struct bt_mesh_cfg_srv cfg_srv = {
-	.relay = BT_MESH_RELAY_DISABLED,
+	.relay = BT_MESH_RELAY_ENABLED,
 	.beacon = BT_MESH_BEACON_ENABLED,
 #if defined(CONFIG_BT_MESH_FRIEND)
 	.frnd = BT_MESH_FRIEND_ENABLED,
@@ -80,6 +80,7 @@ static void prov_complete(u16_t net_idx, u16_t addr)
 {
 	primary_addr = addr;
 	board_prov_complete();
+	bt_mesh_proxy_identity_enable();
 }
 
 static void prov_reset(void)
@@ -87,7 +88,7 @@ static void prov_reset(void)
 	bt_mesh_prov_enable(BT_MESH_PROV_ADV | BT_MESH_PROV_GATT);
 }
 
-static const uint8_t dev_uuid[16] = { 0xdd, 0x01 };
+static const uint8_t dev_uuid[16] = { 0xdd, 0xd1 };
 
 static const struct bt_mesh_prov prov = {
 	.uuid = dev_uuid,
